@@ -1,7 +1,7 @@
 ## 安装
 
-- pip install -U deep_training >= 0.0.15
-- 当前文档版本pypi 0.0.15
+- pip install -U deep_training >= 0.0.17
+- 当前文档版本pypi 0.0.17
 
 ## 更新详情
 
@@ -9,12 +9,14 @@
 
 ## 深度学习常规任务例子
 
-- [deep_training-examples](https://github.com/ssbuild/deep_training-examples)
+- [deep_training-pytorch-example](https://github.com/ssbuild/deep_training-pytorch-example)
+- [deep_training-tf-example](https://github.com/ssbuild/deep_training-tf-example)
 
 ## 支持模型
 
     gpt2 
     laMDA
+    LLaMA
     PaLM
     t5
     unilm
