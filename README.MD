@@ -9,8 +9,8 @@
 
 ## 深度学习常规任务例子
 
-- [deep_training-pytorch-example](https://github.com/ssbuild/deep_training-pytorch-example)
-- [deep_training-tf-example](https://github.com/ssbuild/deep_training-tf-example)
+- [pytorch-task-example](https://github.com/ssbuild/pytorch-task-example)
+- [tf-task-example](https://github.com/ssbuild/tf-task-example)
 
 ## 支持模型
 
