@@ -145,7 +145,7 @@ class NN_DataHelper(DataHelper):
         input_ids = []
         # 每1千首
         for idx, (type, title, paragraphs) in enumerate(sub_list):
-            text = type + title + '<T>' + paragraphs
+            text = type + title + paragraphs
             o = tokenizer.encode_plus(text=text,truncation=True,
                                       return_attention_mask=False,
                                       return_token_type_ids=False)
