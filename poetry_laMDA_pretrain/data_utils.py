@@ -147,19 +147,25 @@ class NN_DataHelper(DataHelper):
         # 每1千首
         for idx, (type, title, paragraphs) in enumerate(sub_list):
             text = type + title + paragraphs
-            o = tokenizer.encode_plus(text, max_length=max_seq_length,truncation=True, return_attention_mask=False,return_token_type_ids=False)
+            o = tokenizer.encode_plus(text,  return_attention_mask=False,return_token_type_ids=False)
             if len(o['input_ids']) <= 3:
                 continue
-            input_ids += o['input_ids'][1:-1]
-            if idx != len(sub_list) - 1:
-                input_ids += [tokenizer.sep_token_id]
+            input_ids += o['input_ids']
+
 
         stride = data_conf['stride']
 
         pos = 0
         ds = []
         while pos < len(input_ids):
-            input_ids_ = [tokenizer.cls_token_id] + input_ids[pos: pos + max_seq_length - 2] + [tokenizer.sep_token_id]
+            if input_ids[pos] == tokenizer.cls_token_id:
+                input_ids_ = input_ids[pos: pos + max_seq_length - 1] + [tokenizer.sep_token_id]
+            else:
+                input_ids_ = [tokenizer.cls_token_id] + input_ids[pos: pos + max_seq_length - 2] + [tokenizer.sep_token_id]
+
+            if input_ids_[-2] == tokenizer.sep_token_id:
+                input_ids_ = input_ids_[:-1]
+
             pos += stride
 
             if len(input_ids_) <= 5:

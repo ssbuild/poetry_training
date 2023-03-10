@@ -146,21 +146,25 @@ class NN_DataHelper(DataHelper):
         # 每1千首
         for idx, (type, title, paragraphs) in enumerate(sub_list):
             text = type + title + paragraphs
-            o = tokenizer.encode_plus(text=text,truncation=True,
-                                      return_attention_mask=False,
-                                      return_token_type_ids=False)
+            o = tokenizer.encode_plus(text=text,return_attention_mask=False,return_token_type_ids=False)
             if len(o['input_ids']) <= 3:
                 continue
-            input_ids += o['input_ids'][1:-1]
-            if idx != len(sub_list) - 1:
-                input_ids += [tokenizer.sep_token_id]
+            input_ids += o['input_ids']
+
 
         stride = data_conf['stride']
 
         pos = 0
         ds = []
         while pos < len(input_ids):
-            input_ids_ = [tokenizer.cls_token_id] + input_ids[pos: pos + max_seq_length - 4] + [tokenizer.sep_token_id]
+            if input_ids[pos] == tokenizer.cls_token_id:
+                input_ids_ = input_ids[pos: pos + max_seq_length - 3] + [tokenizer.sep_token_id]
+            else:
+                input_ids_ = [tokenizer.cls_token_id] + input_ids[pos: pos + max_seq_length - 4] + [tokenizer.sep_token_id]
+
+            if input_ids_[-2] == tokenizer.sep_token_id:
+                input_ids_ = input_ids_[:-1]
+
             pos += stride
 
             if len(input_ids_) <= 5:
@@ -274,7 +278,7 @@ class NN_DataHelper(DataHelper):
         raw_input_ids = o.pop('input_ids')
 
 
-        stride = data_conf['stride']
+
         for (seqlen, ids, a_ids, a_mask, b_ids, b_mask,label) in zip(seqlens, raw_input_ids, input_ids, attention_mask,
                                                                decoder_input_ids, decoder_attention_mask,labels):
             seqlen = seqlen.squeeze(-1).numpy().tolist()
@@ -282,12 +286,20 @@ class NN_DataHelper(DataHelper):
             a_ids[:s] = ids[:s]
             a_ids[s] = sep_token_id
             a_mask[:s + 1] = 1
-            b_ids[0] = cls_token_id
-            b_ids[1:1 + seqlen - s] = ids[s:seqlen]
-            b_mask[:seqlen - s + 1] = 1
-            label[:seqlen - s] = b_ids[1:1 + seqlen - s]
+
+            if ids[0] == cls_token_id:
+                b_len = seqlen - s
+                b_ids[:b_len] = ids[s:seqlen]
+                b_mask[:b_len] = 1
+                label[:b_len - 1] = b_ids[1:b_len]
+            else:
+                b_len = seqlen - s + 1
+                b_ids[0] = cls_token_id
+                b_ids[1:b_len] = ids[s:seqlen]
+                b_mask[:b_len] = 1
+                label[:b_len-1] = b_ids[1:b_len]
             a_maxlen = max(a_maxlen, s + 1)
-            b_maxlen = max(b_maxlen, seqlen - s + 1)
+            b_maxlen = max(b_maxlen, b_len)
 
         o['input_ids'] = input_ids[:, :a_maxlen]
         o['attention_mask'] = attention_mask[:, :a_maxlen]
