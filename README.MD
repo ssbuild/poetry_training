@@ -1,7 +1,7 @@
 ## 安装
 
-- pip install -U deep_training >= 0.0.17
-- 当前文档版本pypi 0.0.17
+- pip install -U deep_training >= 0.0.18
+- (PaLM,LaMDA 修改默认激活函数)最小版本要求 0.0.18@post2
 
 ## 更新详情
 
