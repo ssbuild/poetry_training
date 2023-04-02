@@ -133,11 +133,12 @@ if __name__ == '__main__':
                                                        model_args=model_args,
                                                        training_args=training_args)
 
-        train_datasets = dataHelper.load_random_sampler(dataHelper.train_files,
-                                                        with_load_memory=True,
-                                                        collate_fn=dataHelper.collate_fn,
-                                                        batch_size=training_args.train_batch_size,
-                                                        shuffle=True,infinite=True,num_processes=trainer.world_size,process_index=trainer.global_rank)
+        train_datasets = dataHelper.load_distributed_random_sampler(
+            dataHelper.train_files,
+            with_load_memory=True,
+            collate_fn=dataHelper.collate_fn,
+            batch_size=training_args.train_batch_size,
+            num_processes = trainer.world_size, process_index=trainer.global_rank)
 
         if train_datasets is not None:
             # if not os.path.exists(ckpt_path):
