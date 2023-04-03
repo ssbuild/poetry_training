@@ -142,47 +142,41 @@ class NN_DataHelper(DataHelper):
         tokenizer = self.tokenizer
 
         sub_list = data
-        input_ids = []
+        input_ids_all = []
         # 每1千首
         for idx, (type, title, paragraphs) in enumerate(sub_list):
             text = type + title + paragraphs
-            o = tokenizer.encode_plus(text, return_attention_mask=False,return_token_type_ids=False)
-            if len(o['input_ids']) <= 3:
+            ids = tokenizer.encode(text)
+            if len(ids) <= 3:
                 continue
-            input_ids += o['input_ids']
+            input_ids_all += ids
 
         stride = data_conf['stride']
 
         pos = 0
         ds = []
-        while pos < len(input_ids):
-            if input_ids[pos] == tokenizer.cls_token_id:
-                input_ids_ = input_ids[pos: pos + max_seq_length - 1] + [tokenizer.sep_token_id]
-            else:
-                input_ids_ = [tokenizer.cls_token_id] + input_ids[pos: pos + max_seq_length - 2] + [
-                    tokenizer.sep_token_id]
-
-            if input_ids_[-2] == tokenizer.sep_token_id:
-                input_ids_ = input_ids_[:-1]
-
-            attention_mask_ = [1] * len(input_ids_)
+        while pos < len(input_ids_all):
+            input_ids = [tokenizer.cls_token_id] + input_ids_all[pos: pos + max_seq_length - 1]
             pos += stride
 
-            if len(input_ids_) <= 5:
+            attention_mask = [1] * len(input_ids)
+
+
+            if len(input_ids) <= 5:
                 continue
-            seqlen = np.asarray(len(input_ids_), dtype=np.int32)
+            seqlen = np.asarray(len(input_ids), dtype=np.int32)
             pad_len = max_seq_length - seqlen
-            input_ids_ = np.asarray(input_ids_, dtype=np.int32)
-            attention_mask_ = np.asarray(attention_mask_, dtype=np.int32)
-            labels = copy.deepcopy(input_ids_)
+            input_ids = np.asarray(input_ids, dtype=np.int32)
+            attention_mask = np.asarray(attention_mask, dtype=np.int32)
+            labels = copy.deepcopy(input_ids)
             if pad_len:
                 pad_val = tokenizer.pad_token_id
-                input_ids_ = np.pad(input_ids_, (0, pad_len), 'constant', constant_values=(pad_val, pad_val))
-                attention_mask_ = np.pad(attention_mask_, (0, pad_len), 'constant', constant_values=(0, 0))
+                input_ids = np.pad(input_ids, (0, pad_len), 'constant', constant_values=(pad_val, pad_val))
+                attention_mask = np.pad(attention_mask, (0, pad_len), 'constant', constant_values=(0, 0))
                 labels = np.pad(labels, (0, pad_len), 'constant', constant_values=(-100, -100))
             d = {
-                'input_ids': input_ids_,
-                'attention_mask': attention_mask_,
+                'input_ids': input_ids,
+                'attention_mask': attention_mask,
                 'labels': labels,
                 'seqlen': seqlen
             }
