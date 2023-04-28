@@ -7,7 +7,7 @@ from deep_training.data_helper import ModelArguments, DataArguments, TrainingArg
 from deep_training.nlp.losses.lm_loss import LM_loss
 from deep_training.nlp.models.transformer import TransformerForCausalLM
 from deep_training.utils.trainer import SimpleModelCheckpoint
-from pytorch_lightning import Trainer
+from lightning import Trainer
 from torch.utils.data import DataLoader, IterableDataset
 from transformers import HfArgumentParser, BertTokenizer
 from data_utils import NN_DataHelper, data_conf,train_info_args
